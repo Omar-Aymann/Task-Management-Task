@@ -4,6 +4,7 @@ import TodoActionButton from './components/TodoActionButton';
 import TaskCard from './components/TaskCard';
 import { useEffect, useState } from 'react';
 import CreateTaskModal from './components/CreateTaskModal';
+import TasksGrid from './components/TasksGrid';
 
 const AppLayout = () => {
   const drawerWidth = 300; // Define the width of the drawer
@@ -45,11 +46,7 @@ const AppLayout = () => {
             />
 
           {/* Task Cards */}
-          <Box className="flex flex-row gap-3">
-            <TaskCard />
-            <TaskCard />
-            <TaskCard />
-          </Box>
+        <TasksGrid />
         </Box>
       </Container>
     </Box>
