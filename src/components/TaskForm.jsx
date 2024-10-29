@@ -1,7 +1,10 @@
 import  { useState } from 'react';
 import { TextField, Button, RadioGroup, FormControlLabel, Radio, FormControl, FormLabel, Box, Typography } from '@mui/material';
+import { useDispatch } from 'react-redux';
+import { addTask } from '../features/tasks/tasksSlice';
 
 const TaskForm = () => {
+    const dispatch = useDispatch();
   // State to handle form values
   const [task, setTask] = useState({
     image: null,
@@ -10,6 +13,7 @@ const TaskForm = () => {
     priority: 'Medium', // default value
     state: 'todo',      // default value
   });
+  const [isImageUploaded, setIsImageUploaded] = useState(false); // Track image upload status
 
   // Handle text input changes (title, description)
   const handleChange = (e) => {
@@ -20,19 +24,22 @@ const TaskForm = () => {
     });
   };
 
-  // Handle file input (image)
-  const handleImageChange = (e) => {
-    setTask({
-      ...task,
-      image: e.target.files[0],
-    });
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTask(prevTask => ({ ...prevTask, image: reader.result })); // Store image URL
+        setIsImageUploaded(true);
+      };
+      reader.readAsDataURL(file); // Convert to base64
+    }
   };
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(task); // Output the form data
-    // You can process the form submission here (e.g., send to API)
+    dispatch(addTask({ id: Date.now(), ...task }));
+    setTask({ title: '', description: '', priority: '', state: 'todo' }); // Reset form
   };
 
   return (
@@ -42,16 +49,19 @@ const TaskForm = () => {
       </Typography>
 
       {/* Image Upload */}
-      <Button variant="contained" component="label" sx={{ mb: 2 }}>
-        Upload Image
-        <input
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={handleImageChange}
-        />
-      </Button>
-      {task.image && <Typography>{task.image.name}</Typography>}
+      <Box sx={{display: 'flex',alignItems: 'center', mb: 2, gap: 2}}>
+        <Button variant="contained" component="label" sx={{ mb: 2 }}>
+            Upload Image
+            <input
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={handleImageUpload}
+            />
+        </Button>
+        {isImageUploaded && <Typography color="green">Image uploaded</Typography>}
+      </Box>
+
 
       {/* Task Title */}
       <TextField
@@ -108,7 +118,7 @@ const TaskForm = () => {
       </FormControl>
 
       {/* Submit Button */}
-      <Button type="submit" variant="contained" color="primary" fullWidth>
+      <Button type="submit" variant="contained" color="primary" onClick={handleSubmit} fullWidth>
         Add Task
       </Button>
     </Box>

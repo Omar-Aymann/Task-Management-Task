@@ -1,21 +1,20 @@
 import { Container, Box } from '@mui/material';
 import SideMenu from './components/SideMenu';
 import TodoActionButton from './components/TodoActionButton';
-import TaskCard from './components/TaskCard';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import CreateTaskModal from './components/CreateTaskModal';
 import TasksGrid from './components/TasksGrid';
 
 const AppLayout = () => {
   const drawerWidth = 300; // Define the width of the drawer
-  const [open, setOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
   // Handlers for opening and closing the dialog
   const handleClickOpen = () => {
-    setOpen(true);
+    setFormOpen(true);
   };
   
   const handleClose = () => {
-    setOpen(false);
+    setFormOpen(false);
   };
 
 
@@ -23,7 +22,7 @@ const AppLayout = () => {
     <Box sx={{ flexGrow: 1, display: 'flex', height: '100vh' }}>
       {/* Permanent Drawer */}
       <SideMenu />
-      <CreateTaskModal open={open} handleClose={handleClose} />
+      <CreateTaskModal open={formOpen} handleClose={handleClose} />
       {/* Main Content Area */}
       <Container
         sx={{
