@@ -14,12 +14,9 @@ const TaskCard = () => {
                 <Typography gutterBottom variant="h5" component="div">
                     Task Title
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    Task Description
-                </Typography>
                 <Chip label="High" className="mt-3" sx={{fontWeight: 'bold'}} color="error" ></Chip>
             </CardContent>
-            <CardActions>
+            <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button variant="contained"><RemoveRedEye /></Button>
                 <Button  color="success" variant="contained" ><Check /></Button>
             </CardActions>

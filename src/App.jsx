@@ -1,17 +1,28 @@
-import {  Container, Box } from '@mui/material';
+import { Container, Box } from '@mui/material';
 import SideMenu from './components/SideMenu';
 import TodoActionButton from './components/TodoActionButton';
 import TaskCard from './components/TaskCard';
-
+import { useEffect, useState } from 'react';
+import CreateTaskModal from './components/CreateTaskModal';
 
 const AppLayout = () => {
   const drawerWidth = 300; // Define the width of the drawer
+  const [open, setOpen] = useState(false);
+  // Handlers for opening and closing the dialog
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  
+  const handleClose = () => {
+    setOpen(false);
+  };
+
 
   return (
     <Box sx={{ flexGrow: 1, display: 'flex', height: '100vh' }}>
       {/* Permanent Drawer */}
       <SideMenu />
-
+      <CreateTaskModal open={open} handleClose={handleClose} />
       {/* Main Content Area */}
       <Container
         sx={{
@@ -23,33 +34,23 @@ const AppLayout = () => {
           alignItems: 'center',
         }}
       >
-        <Box className="flex w-full flex-row justify-between gap-5 ">
-          <Box className="flex flex-col gap-2 grow">
-            <TodoActionButton  textColor="#000" title="To-Do" />
-            <Box className="flex flex-col gap-4">
-              <TaskCard />
 
-            </Box>
-          </Box>
-          <Box className="flex flex-col gap-2 grow">
-            <TodoActionButton  textColor="#000" title="In Progress" />
-            <Box className="flex flex-col gap-4">
-              <TaskCard />
+        {/* Add Task Button and Task Cards */}
+        <Box className="flex w-full flex-col gap-5">
+            <TodoActionButton
+              color="green"
+              textColor="#000"
+              onClick={handleClickOpen}  // Open form on button click
+              title="Add Task"
+            />
 
-            </Box>
-
-          </Box>
-          <Box className="flex flex-col gap-2 grow">
-            <TodoActionButton  textColor="#000" title="Completed" />
-            <Box className="flex flex-col gap-4">
-              <TaskCard />
-
-            </Box>
-
+          {/* Task Cards */}
+          <Box className="flex flex-row gap-3">
+            <TaskCard />
+            <TaskCard />
+            <TaskCard />
           </Box>
         </Box>
-        {/* <TaskForm /> */}
-        {/* <Tasks /> */}
       </Container>
     </Box>
   );
