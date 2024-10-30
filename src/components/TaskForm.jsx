@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TextField, Button, RadioGroup, FormControlLabel, Radio, FormControl, FormLabel, Box, Typography } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import { addTask } from '../features/tasks/tasksSlice';
+import { addTask, editTask } from '../features/tasks/tasksSlice';
 
 // Validation schema using Yup
 const validationSchema = Yup.object().shape({
@@ -19,12 +19,12 @@ const validationSchema = Yup.object().shape({
   image: Yup.mixed().required('Image is required').nullable(), // Image is required but can be null initially
 });
 
-const TaskForm = () => {
+const TaskForm = ({ task, handleClose }) => { // Destructure task prop
   const dispatch = useDispatch();
   const [isImageUploaded, setIsImageUploaded] = useState(false); // Track image upload status
   const [imagePreview, setImagePreview] = useState(null); // To preview uploaded image
 
-  // React Hook Form initialization with mode set to 'onChange'
+  // React Hook Form initialization
   const {
     register,
     handleSubmit,
@@ -58,22 +58,40 @@ const TaskForm = () => {
   const onSubmit = (data) => {
     const taskData = {
       ...data,
-      id: Date.now(),
+      id: task ? task.id : Date.now(), // Use existing ID if editing
       image: imagePreview, // Store base64 image
     };
 
-    dispatch(addTask(taskData)); // Dispatch action to Redux
+    if (task) {
+      dispatch(editTask({ id: task.id, updatedTask: taskData })); // Pass as object with id and updatedTask
+    } else {
+      dispatch(addTask(taskData)); // Dispatch action to add a new task
+    }
 
     // Reset form after submission
     reset();
     setIsImageUploaded(false);
     setImagePreview(null);
+    handleClose();
   };
+
+  // Effect to update form values when task prop changes (for editing)
+  useEffect(() => {
+    if (task) {
+      setValue('image', task.image); // Set existing image
+      setImagePreview(task.image); // Preview existing image
+      setIsImageUploaded(true); // Mark image as uploaded
+      setValue('title', task.title); // Set existing title
+      setValue('description', task.description); // Set existing description
+      setValue('priority', task.priority); // Set existing priority
+      setValue('state', task.state); // Set existing state
+    }
+  }, [task, setValue]);
 
   return (
     <Box component="form" sx={{ mt: 5 }} onSubmit={handleSubmit(onSubmit)} noValidate>
       <Typography variant="h5" gutterBottom>
-        Create New Task
+        {task ? "Edit Task" : "Create New Task"}
       </Typography>
 
       {/* Image Upload */}
@@ -124,7 +142,7 @@ const TaskForm = () => {
         <Controller
           name="priority"
           control={control}
-          defaultValue="Medium"
+          defaultValue="Medium" // Default value for new tasks
           render={({ field }) => (
             <RadioGroup {...field}>
               <FormControlLabel value="High" control={<Radio />} label="High" />
@@ -142,7 +160,7 @@ const TaskForm = () => {
         <Controller
           name="state"
           control={control}
-          defaultValue="todo"
+          defaultValue="todo" // Default value for new tasks
           render={({ field }) => (
             <RadioGroup {...field}>
               <FormControlLabel value="todo" control={<Radio />} label="Todo" />
@@ -162,7 +180,7 @@ const TaskForm = () => {
         fullWidth
         disabled={!isValid} // Disable button if form is invalid
       >
-        Add Task
+        {task ? "Update Task" : "Add Task"} {/* Change button text based on edit or create */}
       </Button>
     </Box>
   );

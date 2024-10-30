@@ -3,6 +3,8 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   tasks: [],
+  selectedTask: null, // To hold a single task for viewing details
+  taskToEdit: null,
 };
 
 const tasksSlice = createSlice({
@@ -29,8 +31,21 @@ const tasksSlice = createSlice({
         task.state = newState;
       }
     },
+    readTask: (state, action) => {
+      const taskId = action.payload;
+      state.selectedTask = state.tasks.find(task => task.id === taskId) || null; // Set selected task or null if not found
+    },
+    clearSelectedTask: (state) => {
+      state.selectedTask = null; // Clear the selected task
+    },    
+    setTaskToEdit: (state, action) => {
+      state.taskToEdit = action.payload; // Set the task to edit
+    },
+    clearTaskToEdit: (state) => {
+      state.taskToEdit = null; // Clear the task to edit
+    },
   },
 });
 
-export const { addTask, editTask, deleteTask, updateTaskState } = tasksSlice.actions;
+export const { addTask, editTask, deleteTask, updateTaskState, setTaskToEdit, clearTaskToEdit, readTask, clearSelectedTask } = tasksSlice.actions;
 export default tasksSlice.reducer;

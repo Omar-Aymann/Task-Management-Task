@@ -16,7 +16,7 @@ const CreateTaskModal = (props) => {
                 Create Task
             </DialogTitle>
             <DialogContent id="dialog-description">
-            <TaskForm />
+            <TaskForm handleClose={props.handleClose} task={props.taskToEdit} />
             </DialogContent>
         </Dialog>
     )
