@@ -1,77 +1,107 @@
-import  { useState } from 'react';
+import React, { useState } from 'react';
 import { TextField, Button, RadioGroup, FormControlLabel, Radio, FormControl, FormLabel, Box, Typography } from '@mui/material';
 import { useDispatch } from 'react-redux';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
 import { addTask } from '../features/tasks/tasksSlice';
 
+// Validation schema using Yup
+const validationSchema = Yup.object().shape({
+  title: Yup.string()
+    .required('Title is required')
+    .min(3, 'Title must be at least 3 characters'),
+  description: Yup.string()
+    .required('Description is required')
+    .min(5, 'Description must be at least 5 characters'),
+  priority: Yup.string().required('Priority is required'),
+  state: Yup.string().required('State is required'),
+  image: Yup.mixed().required('Image is required').nullable(), // Image is required but can be null initially
+});
+
 const TaskForm = () => {
-    const dispatch = useDispatch();
-  // State to handle form values
-  const [task, setTask] = useState({
-    image: null,
-    title: '',
-    description: '',
-    priority: 'Medium', // default value
-    state: 'todo',      // default value
-  });
+  const dispatch = useDispatch();
   const [isImageUploaded, setIsImageUploaded] = useState(false); // Track image upload status
+  const [imagePreview, setImagePreview] = useState(null); // To preview uploaded image
 
-  // Handle text input changes (title, description)
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setTask({
-      ...task,
-      [name]: value,
-    });
-  };
+  // React Hook Form initialization with mode set to 'onChange'
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    control,
+    formState: { errors, isValid },
+    reset,
+  } = useForm({
+    resolver: yupResolver(validationSchema), // Use Yup for validation
+    mode: 'onChange', // Validate on change
+  });
 
+  const imageFile = watch('image'); // Watch image input to handle preview
+
+  // Image upload handler
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setTask(prevTask => ({ ...prevTask, image: reader.result })); // Store image URL
-        setIsImageUploaded(true);
+        setImagePreview(reader.result); // Store base64 image for preview
+        setValue('image', file); // Set the file in React Hook Form
+        setIsImageUploaded(true); // Mark image as uploaded
       };
-      reader.readAsDataURL(file); // Convert to base64
+      reader.readAsDataURL(file); // Convert image to base64
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(addTask({ id: Date.now(), ...task }));
-    setTask({ title: '', description: '', priority: '', state: 'todo' }); // Reset form
+  // Form submission handler
+  const onSubmit = (data) => {
+    const taskData = {
+      ...data,
+      id: Date.now(),
+      image: imagePreview, // Store base64 image
+    };
+
+    dispatch(addTask(taskData)); // Dispatch action to Redux
+
+    // Reset form after submission
+    reset();
+    setIsImageUploaded(false);
+    setImagePreview(null);
   };
 
   return (
-    <Box component="form" sx={{ mt: 5 }} onSubmit={handleSubmit} noValidate>
+    <Box component="form" sx={{ mt: 5 }} onSubmit={handleSubmit(onSubmit)} noValidate>
       <Typography variant="h5" gutterBottom>
         Create New Task
       </Typography>
 
       {/* Image Upload */}
-      <Box sx={{display: 'flex',alignItems: 'center', mb: 2, gap: 2}}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 2 }}>
         <Button variant="contained" component="label" sx={{ mb: 2 }}>
-            Upload Image
-            <input
+          Upload Image
+          <input
             type="file"
             accept="image/*"
             hidden
-            onChange={handleImageUpload}
-            />
+            onChange={handleImageUpload} // Handle file upload
+          />
         </Button>
         {isImageUploaded && <Typography color="green">Image uploaded</Typography>}
+        {errors.image && <Typography color="error">{errors.image.message}</Typography>} {/* Validation error */}
       </Box>
 
+      {/* Image Preview */}
+      {imagePreview && <img src={imagePreview} alt="Preview" style={{ width: '100px', height: '100px', marginBottom: '10px' }} />}
 
       {/* Task Title */}
       <TextField
         label="Task Title"
         variant="outlined"
         fullWidth
-        name="title"
-        value={task.title}
-        onChange={handleChange}
-        required
+        {...register('title')}
+        error={!!errors.title} // Highlight error field
+        helperText={errors.title?.message} // Display error message
         sx={{ mb: 2 }}
       />
 
@@ -82,43 +112,56 @@ const TaskForm = () => {
         fullWidth
         multiline
         rows={4}
-        name="description"
-        value={task.description}
-        onChange={handleChange}
-        required
+        {...register('description')}
+        error={!!errors.description}
+        helperText={errors.description?.message}
         sx={{ mb: 2 }}
       />
 
       {/* Task Priority - Radio Buttons */}
       <FormControl component="fieldset" sx={{ mb: 2 }}>
         <FormLabel component="legend">Priority</FormLabel>
-        <RadioGroup
+        <Controller
           name="priority"
-          value={task.priority}
-          onChange={handleChange}
-        >
-          <FormControlLabel value="High" control={<Radio />} label="High" />
-          <FormControlLabel value="Medium" control={<Radio />} label="Medium" />
-          <FormControlLabel value="Low" control={<Radio />} label="Low" />
-        </RadioGroup>
+          control={control}
+          defaultValue="Medium"
+          render={({ field }) => (
+            <RadioGroup {...field}>
+              <FormControlLabel value="High" control={<Radio />} label="High" />
+              <FormControlLabel value="Medium" control={<Radio />} label="Medium" />
+              <FormControlLabel value="Low" control={<Radio />} label="Low" />
+            </RadioGroup>
+          )}
+        />
+        {errors.priority && <Typography color="error">{errors.priority.message}</Typography>}
       </FormControl>
 
       {/* Task State - Radio Buttons */}
       <FormControl component="fieldset" sx={{ mb: 2 }}>
         <FormLabel component="legend">State</FormLabel>
-        <RadioGroup
+        <Controller
           name="state"
-          value={task.state}
-          onChange={handleChange}
-        >
-          <FormControlLabel value="todo" control={<Radio />} label="Todo" />
-          <FormControlLabel value="doing" control={<Radio />} label="Doing" />
-          <FormControlLabel value="done" control={<Radio />} label="Done" />
-        </RadioGroup>
+          control={control}
+          defaultValue="todo"
+          render={({ field }) => (
+            <RadioGroup {...field}>
+              <FormControlLabel value="todo" control={<Radio />} label="Todo" />
+              <FormControlLabel value="doing" control={<Radio />} label="Doing" />
+              <FormControlLabel value="done" control={<Radio />} label="Done" />
+            </RadioGroup>
+          )}
+        />
+        {errors.state && <Typography color="error">{errors.state.message}</Typography>}
       </FormControl>
 
       {/* Submit Button */}
-      <Button type="submit" variant="contained" color="primary" onClick={handleSubmit} fullWidth>
+      <Button 
+        type="submit" 
+        variant="contained" 
+        color="primary" 
+        fullWidth
+        disabled={!isValid} // Disable button if form is invalid
+      >
         Add Task
       </Button>
     </Box>
