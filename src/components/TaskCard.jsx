@@ -12,7 +12,7 @@ const TaskCard = ({task, onEditClick, color, priorityColor}) => {
     };
 
     return (
-        <Badge color={ task.priority === 'Low' ? 'success' : task.priority === 'Medium' ? 'warning' : 'error'} badgeContent={task.priority} overlap="rectangular">
+        <Badge color={ task.priority == '0' ? 'success' : task.priority == '1' ? 'warning' : 'error'} badgeContent={ task.priority == '0' ? 'Low' : task.priority == '1' ? 'Medium' : 'High'} overlap="rectangular">
         <Card>
             <Box>
                 <CardMedia

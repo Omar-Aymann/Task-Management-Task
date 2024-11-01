@@ -25,8 +25,12 @@ const TasksGrid2 = ({ filter }) => {
     // const filteredTasks = filter ? tasks.filter((task) => task.state === filter) : tasks;
 
     useEffect(() => {
-        setFilterTasks(filter ? tasks.filter((task) => task.state === filter) : tasks);
-    }, [tasks, filter]);
+      const sortedTasks = [...(filter ? tasks.filter((task) => task.state === filter) : tasks)]
+          .sort((a, b) => b.priority - a.priority);
+      
+      setFilterTasks(sortedTasks);
+  }, [tasks, filter]);
+
     return (
         <Grid2 container  sx={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center"}} spacing={2}>
             {filteredTasks.length > 0 ? (

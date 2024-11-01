@@ -144,12 +144,12 @@ const TaskForm = ({ task, handleClose }) => { // Destructure task prop
         <Controller
           name="priority"
           control={control}
-          defaultValue="Medium" // Default value for new tasks
+          defaultValue="1" // Default value for new tasks
           render={({ field }) => (
             <RadioGroup {...field}>
-              <FormControlLabel value="High" control={<Radio />} label="High" />
-              <FormControlLabel value="Medium" control={<Radio />} label="Medium" />
-              <FormControlLabel value="Low" control={<Radio />} label="Low" />
+              <FormControlLabel value="2" control={<Radio />} label="High" />
+              <FormControlLabel value="1" control={<Radio />} label="Medium" />
+              <FormControlLabel value="0" control={<Radio />} label="Low" />
             </RadioGroup>
           )}
         />
