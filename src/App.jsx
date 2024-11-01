@@ -1,4 +1,4 @@
-import { Container, Box } from '@mui/material';
+import { Container, Box, Chip, Typography } from '@mui/material';
 import SideMenu from './components/SideMenu';
 import TodoActionButton from './components/TodoActionButton';
 import { useState } from 'react';
@@ -10,10 +10,17 @@ import { clearSelectedTask, setTaskToEdit } from './features/tasks/tasksSlice';
 
 const AppLayout = () => {
   const dispatch = useDispatch();
-  const drawerWidth = 300; // Define the width of the drawer
   const [formOpen, setFormOpen] = useState(false);
   const task = useSelector((state) => state.tasks.selectedTask);
   const taskToEdit = useSelector((state) => state.tasks.taskToEdit);
+  const [filter, setFilter] = useState(null);
+  
+
+  const colors = {
+    'done': '#859F3D',
+    'doing': '#DE8F5F',
+    'todo': '#C62E2E',
+}
 
   // Handlers for opening and closing the dialog
   const handleClickOpen = () => {
@@ -25,7 +32,13 @@ const AppLayout = () => {
     dispatch(clearSelectedTask());
     dispatch(setTaskToEdit(null));
   };
-
+  const setFilterTasks = (input) => {
+    if(input == filter) {
+      setFilter(null)
+      return 0;
+    }
+    setFilter(input)
+  }
   return (
     <Box sx={{ flexGrow: 1, display: 'flex', height: '100vh' }}>
       {/* Permanent Drawer */}
@@ -44,7 +57,6 @@ const AppLayout = () => {
       <Container
         sx={{
           flexGrow: 1,
-          ml: `${drawerWidth}px`,  // Ensure the container is offset by the drawer width
           mt: 10,  // Top margin to avoid overlapping with AppBar
           display: 'flex',
           flexDirection: 'column',
@@ -60,9 +72,41 @@ const AppLayout = () => {
               onClick={handleClickOpen}  // Open form on button click
               title="Add Task"
             />
+{/* Filter Chips */}
+<Box sx={{ display: 'flex', flexDirection: 'column', width: 'full', justifyContent: 'center', gap: 1, alignItems: 'center' }}>
+  <Typography variant="h6" fontWeight={'bold'} >
+    Filter Tasks
+  </Typography>
+  <Box sx={{ display: 'flex', flexDirection: 'row', width: 'full', justifyContent: 'center', gap: 1 }}>
+              <Chip 
+                label="Done" 
+                onClick={() => setFilterTasks('done')} 
+                className="mt-3" 
+                sx={{ fontWeight: 'bold' }}
+                color={filter == 'done' ? 'success' : 'default'}
+              />
+              <Chip 
+                label="Doing" 
+                onClick={() => setFilterTasks('doing')} 
+                className="mt-3" 
+                sx={{ fontWeight: 'bold' }} 
+                color={filter == 'doing' ? 'warning' : 'default'}
+
+              />
+              <Chip 
+                label="To Do" 
+                onClick={() => setFilterTasks('todo')}  // Updated filter value to match expected state
+                className="mt-3" 
+                sx={{ fontWeight: 'bold' }} 
+                color={filter == 'todo' ? 'error' : 'default'}
+
+              />
+            </Box>
+
+</Box>
 
           {/* Task Cards */}
-        <TasksGrid />
+        <TasksGrid filter={filter} />
         </Box>
       </Container>
     </Box>
