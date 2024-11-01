@@ -16,7 +16,7 @@ const validationSchema = Yup.object().shape({
     .min(5, 'Description must be at least 5 characters'),
   priority: Yup.string().required('Priority is required'),
   state: Yup.string().required('State is required'),
-  image: Yup.mixed().required('Image is required').nullable(), // Image is required but can be null initially
+  image: Yup.mixed().required('Image is required').nullable(),
 });
 
 const TaskForm = ({ task, handleClose }) => { // Destructure task prop
@@ -49,6 +49,8 @@ const TaskForm = ({ task, handleClose }) => { // Destructure task prop
         setImagePreview(reader.result); // Store base64 image for preview
         setValue('image', file); // Set the file in React Hook Form
         setIsImageUploaded(true); // Mark image as uploaded
+        setValue('image', file, { shouldValidate: true }); // Set file and trigger validation
+
       };
       reader.readAsDataURL(file); // Convert image to base64
     }
