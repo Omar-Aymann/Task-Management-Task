@@ -5,6 +5,7 @@ const initialState = {
   tasks: [],
   selectedTask: null, // To hold a single task for viewing details
   taskToEdit: null,
+  searchTerm: '',
 };
 
 const tasksSlice = createSlice({
@@ -44,8 +45,11 @@ const tasksSlice = createSlice({
     clearTaskToEdit: (state) => {
       state.taskToEdit = null; // Clear the task to edit
     },
+    setSearchTerm(state, action) {
+      state.searchTerm = action.payload;
+    },
   },
 });
 
-export const { addTask, editTask, deleteTask, updateTaskState, setTaskToEdit, clearTaskToEdit, readTask, clearSelectedTask } = tasksSlice.actions;
+export const { addTask, editTask, setSearchTerm, deleteTask, updateTaskState, setTaskToEdit, clearTaskToEdit, readTask, clearSelectedTask } = tasksSlice.actions;
 export default tasksSlice.reducer;

@@ -1,4 +1,4 @@
-import { Container, Box, Chip, Typography } from '@mui/material';
+import { Container, Box, Chip, Typography, TextField } from '@mui/material';
 import SideMenu from './components/SideMenu';
 import TodoActionButton from './components/TodoActionButton';
 import { useState } from 'react';
@@ -7,6 +7,8 @@ import TasksGrid from './components/TasksGrid';
 import TaskDetailsDialog from './components/TaskDetailsDialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearSelectedTask, setTaskToEdit } from './features/tasks/tasksSlice';
+import { Search } from '@mui/icons-material';
+import SearchBar from './components/SearchBar';
 
 const AppLayout = () => {
   const dispatch = useDispatch();
@@ -66,6 +68,7 @@ const AppLayout = () => {
 
         {/* Add Task Button and Task Cards */}
         <Box className="flex w-full flex-col gap-5">
+          <SearchBar />
             <TodoActionButton
               color="green"
               textColor="#000"
