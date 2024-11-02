@@ -1,9 +1,8 @@
-import { Grid2 } from "@mui/material";
+import { Grid2, Typography, Box } from "@mui/material";
 import TaskCard from "./TaskCard";
 import { useDispatch, useSelector } from "react-redux";
 import { setTaskToEdit } from "../features/tasks/tasksSlice";
 import { useEffect, useState } from "react";
-
 const TasksGrid2 = ({ filter }) => {
     const tasks = useSelector((state) => state.tasks.tasks);
     const searchTerm = useSelector((state) => state.tasks.searchTerm);
@@ -47,7 +46,10 @@ const TasksGrid2 = ({ filter }) => {
                     </Grid2>
                 ))
             ) : (
-                <p>No tasks found.</p>
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                  <Typography variant="body1">No tasks found!!</Typography>
+                 </Box>
+                
             )}
         </Grid2>
     );
